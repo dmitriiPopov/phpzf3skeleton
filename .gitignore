@@ -1,0 +1,40 @@
+# IDE data
+.idea
+
+# local configuration
+config/development.config.php
+config/autoload/local.php
+
+# php unit files
+phpunit.xml
+
+# Composer files
+composer.phar
+vendor/
+
+# Local configs
+config/autoload/*.local.php
+
+# Binary gettext files
+*.mo
+
+# Data
+data/logs/
+data/cache/
+!data/cache/.gitkeep
+data/sessions/
+data/tmp/
+temp/
+
+
+#Doctrine 2
+data/DoctrineORMModule/Proxy/
+data/DoctrineORMModule/cache/
+
+
+# Legacy ZF1
+demos/
+extras/documentation
+
+# test skeleton from another repository
+testprojectzf3
