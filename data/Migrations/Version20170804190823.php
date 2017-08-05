@@ -3,8 +3,10 @@
 namespace Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\ResultSetMapping;
 
 /**
@@ -42,13 +44,59 @@ COMMENT = 'List of albums';
          * */
 
         $table = $schema->createTable('album');
-        $table->addColumn('id', Type::INTEGER, ['length' => 11, 'unsigned' => true, 'notNull' => true, 'autoincrement' => true]);
+
+        $table->addColumn(
+            'id',
+            Type::INTEGER,
+            [
+                'length'        => 11,
+                'unsigned'      => true,
+                'notNull'       => true,
+                'autoincrement' => true,
+                'comment'       => 'Unique identifier',
+            ]
+        );
+        $table->addColumn(
+            'artist',
+            Type::STRING,
+            [
+                'length'  => 100,
+                'notNull' => true,
+                'comment' => 'Artist name',
+            ]
+        );
+        $table->addColumn(
+            'title',
+            Type::STRING,
+            [
+                'length' => 100,
+                'notNull' => true,
+                'comment' => 'Album title',
+            ]
+        );
 
         $table->setPrimaryKey(['id']);
-        $table->addOption('ENGINE', 'InnoDB');
-        $table->addOption('COLLATE', 'utf8_general_ci');
-        $table->addOption('COMMENT', 'List of albums');
+        $table->addOption('engine', 'InnoDB');//InnoDB or MYISAM
+        $table->addOption('charset', 'utf8');//https://dev.mysql.com/doc/refman/5.5/en/charset-charsets.html
+        $table->addOption('collate', 'utf8_general_ci');//https://dev.mysql.com/doc/refman/5.5/en/charset-charsets.html
+        $table->addOption('comment', 'List of albums');
 
+
+    }
+
+    public function postUp(Schema $schema)
+    {
+        parent::postUp($schema);
+
+        //insert data
+        //http://jcfiala.net/blog/2014/08/29/using-doctrine-migrations-part-2-adding-data-migration
+        $this->connection->executeQuery("
+            INSERT INTO album (artist, title) VALUES ('The Military Wives', 'In My Dreams');
+            INSERT INTO album (artist, title) VALUES ('Adele', '21');
+            INSERT INTO album (artist, title) VALUES ('Bruce Springsteen', 'Wrecking Ball (Deluxe)');
+            INSERT INTO album (artist, title) VALUES ('Lana Del Rey', 'Born To Die');
+            INSERT INTO album (artist, title) VALUES ('Gotye', 'Making Mirrors');
+        ");
     }
 
     /**

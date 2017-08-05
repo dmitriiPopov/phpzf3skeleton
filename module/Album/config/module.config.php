@@ -1,13 +1,14 @@
 <?php
 namespace Album;
 
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Zend\Router\Http\Segment;
-use Zend\ServiceManager\Factory\InvokableFactory;
+//use Zend\ServiceManager\Factory\InvokableFactory;
 
 return [
     'controllers' => [
         'factories' => [
-            Controller\AlbumController::class => InvokableFactory::class,
+            \Album\Controller\AlbumController::class => \Album\Factory\AlbumControllerFactory::class,
         ],
     ],
 
@@ -37,22 +38,34 @@ return [
         ],
     ],
 
-## Generate php model from table:
-## ./vendor/doctrine/doctrine-module/bin/doctrine-module orm:convert-mapping --namespace="Album\\Entity\\" --force  --from-database annotation ./module/Album/src/
-    'doctrine' => array(
-        'driver' => array(
-            'Album_driver' => array(
-                'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
+
+
+
+    // SUPER DOC ABOUT DOCTRINE
+    //https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Database_Management_with_Doctrine_ORM/Creating_Entities.html
+
+
+    /*
+    /// Generate php model from table:
+        ./vendor/doctrine/doctrine-module/bin/doctrine-module orm:convert-mapping \
+         --namespace="Album\\Entity\\" --force  --from-database annotation ./module/Album/src/
+    */
+    'doctrine' => [
+        'driver' => [
+            'Album' => [
+                'class' => AnnotationDriver::class,
                 'cache' => 'array',
-                'paths' => array(__DIR__ . '/../src/Model')
-            ),
-            'orm_default' => array(
-                'drivers' => array(
-                    'Album\Model' =>  'Album_driver'
-                ),
-            ),
-        ),
-    ),
+                'paths' => [
+                    __DIR__ . '/../src/Entity'
+                ]
+            ],
+            'orm_default' => [
+                'drivers' => [
+                    'Album\\Entity' =>  'Album',
+                ],
+            ],
+        ],
+    ],
 
 
 ];

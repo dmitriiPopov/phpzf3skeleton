@@ -12,6 +12,11 @@ return [
         'Album',
         'DoctrineModule',
         'DoctrineORMModule',
+        'Zend\Form',
+        'Zend\Db',
+        'Zend\Router',
+        'Zend\Validator',
+        //'ZendDeveloperTools',
     ],
     // Configuration overrides during development mode
     'module_listener_options' => [
