@@ -29,6 +29,8 @@
         "zendframework/zend-inputfilter": "*",
         "doctrine/doctrine-orm-module": "^1.0.9",
         "zendframework/zend-test": "*",
+        "zendframework/zend-navigation": "*",
+        "zendframework/zend-mvc-form": "*",
         "doctrine/migrations": "^1.4"
     },
     "autoload": {
@@ -39,7 +41,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "ApplicationTest\\": "module/Application/test/"
+            "ApplicationTest\\": "module/Application/test/",
+            "AlbumTest\\": "module/Album/test/"
         }
     },
     "extra": [],

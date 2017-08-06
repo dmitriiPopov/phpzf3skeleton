@@ -1,6 +1,6 @@
 <?php
 
-namespace Album\Factory;
+namespace Album\Controller\Factory;
 
 use Album\Controller\AlbumController;
 use Doctrine\ORM\EntityManager;
@@ -13,13 +13,6 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  */
 class AlbumControllerFactory
 {
-
-   /* public function createService(ServiceLocatorInterface $sm)
-    {
-        $entityManager = $sm->get('Doctrine\ORM\EntityManager');
-        return new AlbumController($entityManager);
-    }*/
-
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         $em = $container->get(EntityManager::class);

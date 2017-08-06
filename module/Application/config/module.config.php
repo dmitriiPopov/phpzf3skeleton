@@ -7,6 +7,7 @@
 
 namespace Application;
 
+use Application\Controller\IndexController;
 use Zend\Router\Http\Literal;
 use Zend\Router\Http\Segment;
 use Zend\ServiceManager\Factory\InvokableFactory;
@@ -21,7 +22,8 @@ return [
                 'options' => [
                     'route'    => '/',
                     'defaults' => [
-                        'controller' => AlbumController::class,
+                        //'controller' => AlbumController::class,
+                        'controller' => IndexController::class,
                         'action'     => 'index',
                     ],
                 ],

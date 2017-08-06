@@ -5,10 +5,16 @@ use Album\Entity\Album;
 use Interop\Container\ContainerInterface;
 //use Zend\Db\Adapter\AdapterInterface;
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 //use Album\Model\AlbumModel;
 use Album\Form\AlbumForm;
 use Doctrine\ORM\EntityManager;
+
+use DoctrineORMModule\Paginator\Adapter\DoctrinePaginator as ORMAdapter;
+use Doctrine\ORM\Tools\Pagination\Paginator as ORMPaginator;
+use Zend\Paginator\Paginator;
+
 
 /**
  * Class AlbumController
@@ -38,6 +44,22 @@ class AlbumController extends AbstractActionController
     }
 
     /**
+     * Мы переопределяем метод родительского класса onDispatch(),
+     * чтобы установить альтернативный лэйаут для всех действий в этом контроллере.
+     */
+    public function onDispatch(\Zend\MVC\MvcEvent $e)
+    {
+        // Вызываем метод базового класса onDispatch() и получаем ответ
+        $response = parent::onDispatch($e);
+
+        // Устанавливаем альтернативный лэйаут
+        $this->layout()->setTemplate('album/layout/layout');
+
+        // Возвращаем ответ
+        return $response;
+    }
+
+    /**
      * @return EntityManager
      */
     public function getEntityManager()
@@ -52,11 +74,36 @@ class AlbumController extends AbstractActionController
     /**
      * @return ViewModel
      */
-    public function indexAction()
+    public function indexAction($limit = 10)
     {
-        return new ViewModel(array(
-            'albums' => $this->getEntityManager()->getRepository(Album::class)->findAll(),
-        ));
+
+        //CALL TEST PLUGIN - /module/Album/config/module.config.php
+        //$this->helloworld()->showMessage('index');
+
+        $page = $this->params()->fromQuery('page', 1);
+
+        $dbQueryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $dbQueryBuilder->select('album')
+            ->from(Album::class, 'album')
+            //->orderBy('album.title')
+            ->setMaxResults($limit)
+            ->setFirstResult($page-1 * $limit);
+
+        $query = $dbQueryBuilder->getQuery();
+
+        // Создаем ZF3 пагинатор.
+        $adapter   = new ORMAdapter(new ORMPaginator($query, false));
+        $paginator = new Paginator($adapter);
+
+        // Устанавливаем номер страницы и размер страницы.
+        $paginator->setDefaultItemCountPerPage($limit);
+        $paginator->setCurrentPageNumber($page);
+
+        $viewModel =  new ViewModel();
+        $viewModel->setVariable('albumsPaginator', $paginator);
+
+        return $viewModel;
     }
 
     /**
@@ -77,7 +124,7 @@ class AlbumController extends AbstractActionController
         }
 
         $album = new Album();
-        $form->setInputFilter($album->getInputFilter());
+        //$form->setInputFilter($album->getInputFilter());
         $form->setData($request->getPost());
 
         if (! $form->isValid()) {
@@ -177,5 +224,41 @@ class AlbumController extends AbstractActionController
             'id'    => $id,
             'album' => $this->getEntityManager()->getRepository(Album::class)->find($id),
         ];
+    }
+
+    /**
+     * @return JsonModel
+     */
+    public function getJsonAction()
+    {
+        return new JsonModel([
+            'status' => 'SUCCESS',
+            'message'=>'Here is your data',
+            'data' => [
+                'full_name' => 'John Doe',
+                'address' => '51 Middle st.'
+            ]
+        ]);
+    }
+
+    /**
+     * Action for custom route class (for example)
+     * @return void|ViewModel
+     */
+    public function staticAction()
+    {
+        // Получаем путь к шаблону представления от параметров маршрута
+        $pageTemplate = $this->params()->fromRoute('page', null);
+        if($pageTemplate==null) {
+            $this->getResponse()->setStatusCode(404);
+            return;
+        }
+
+        // Визуализируем страницу
+        $viewModel = new ViewModel([
+            'page'=>$pageTemplate
+        ]);
+        $viewModel->setTemplate($pageTemplate);
+        return $viewModel;
     }
 }
